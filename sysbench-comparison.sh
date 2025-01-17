@@ -20,9 +20,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-function get_model_name {
-  (grep 'model name' | awk -F ':' '{print $2}' | awk -F "@" '{print $1}' | sed -e 's@^ @@g' | sed -e 's@ CPU@@g' | head -1 | sed -e 's@ $@@g') < /proc/cpuinfo
+REQ_TOOL=sysbench
+REPORTS_DIR=reports
+
+function err_exit {
+  echo
+  echo "$1"
+  echo
+  exit "$2"
 }
+
+function check_sysbench {
+  type "${REQ_TOOL}" 2>/dev/null >/dev/null || err_exit "this scripts needs ${REQ_TOOL} tool" 1
+}
+
+function get_model_name {
+  (grep 'model name' | awk -F ':' '{print $2}' | awk -F "@" '{print $1}' | sed -e 's@^ @@g' | sed -e 's@ CPU@@g' | head -1 | sed -e 's@ $@@g' | tr ' ' '.') < /proc/cpuinfo
+}
+
+function cpu_run {
+  ${REQ_TOOL} cpu run > "${REPORTS_DIR}/$1-cpu-run.report"
+}
+
+check_sysbench
+mkdir -p "${REPORTS_DIR}"
 
 name="${1}"
 test -z "${name}" && name=$(get_model_name)
+cpu_run "${name}"
+
