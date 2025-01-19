@@ -35,7 +35,7 @@ function check_sysbench {
 }
 
 function get_model_name {
-  (grep 'model name' | awk -F ':' '{print $2}' | awk -F "@" '{print $1}' | sed -e 's@^ @@g' | sed -e 's@ CPU@@g' | head -1 | sed -e 's@ $@@g' | tr ' ' '.') < /proc/cpuinfo
+  (grep 'model name' | awk -F ':' '{print $2}' | awk -F "@" '{print $1}' | sed -e 's@^ @@g' | sed -e 's@ CPU@@g' | head -1 | sed -e 's@ $@@g' | sed 's@[[:space:]]\+@.@g' | sed -e 's@\.$@@g') < /proc/cpuinfo
 }
 
 function cpu_run {
